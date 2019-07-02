@@ -76,7 +76,7 @@ public interface iControladorCliente {
 
     public abstract void setRutaFotoImagenesMascotaLevantar(String ruta);
     
-    
+    public abstract boolean altaClienteWeb(cliente clienteNuevo);
     
     
     

@@ -15,6 +15,12 @@ import Logica.iControladorReservas;
 import Logica.iControladorVentas;
 import Logica.reserva;
 import Logica.utilidades;
+import Servicios.WSContCliente;
+import Servicios.WSContVentas;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Properties;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -27,6 +33,7 @@ import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.table.DefaultTableModel;
 
+
 /**
  *
  * @author jp
@@ -38,8 +45,12 @@ public class Principal extends javax.swing.JFrame {
     String cuerpo = "coso", asunto = "cospe";
     iControladorCliente ICC = fabricaElGuardian.getInstance().getInstanceIControladorCliente();
     iControladorVentas ICV = fabricaElGuardian.getInstance().getInstanceIControladorVentas();
+    
+        //ICC.cargarMascotas();
+
     iControladorReservas ICR = fabricaElGuardian.getInstance().getInstanceIControladorReservas();
     //ICC.cargarMascotas();
+
     // private JDesktopPane escritorioPrincipal = new JDesktopPane();
     private Long idReserva;
 
@@ -62,7 +73,11 @@ public class Principal extends javax.swing.JFrame {
             System.err.println(e.getMessage());
         }
         initComponents();
+
+        this.PublicarServicios();
+
         cargarInicio();
+
 
         // eM= controladorCliente.getEm();
     }
@@ -424,6 +439,51 @@ public class Principal extends javax.swing.JFrame {
         this.escritorioPrincipal = escritorioPrincipal;
     }
     
+
+      public String LeerProperties(String caso) {
+        String URL = "";
+        Properties prop = new Properties();
+
+        InputStream archivo = null;
+
+        try { //C:\\Users\\Martin\\Documents\\PA\\Tarea 1\\culturarte
+            archivo = new FileInputStream(System.getProperty("user.dir") + "\\config\\config.properties");
+            prop.load(archivo);
+
+        } catch (IOException e) {
+            JOptionPane.showMessageDialog(null, e.getMessage());
+        }
+        //      http://     127.0.0.1               :      8280                     /servicio        Login
+        URL = "http://" + prop.getProperty("Ip") + ":" + prop.getProperty("Porth") + "/servicio" + prop.getProperty(caso);
+        return URL;
+    }
+      
+    
+//       
+
+    private void PublicarServicios() {
+        
+        String URL;
+        URL = this.LeerProperties("ConsultaUsuario");
+        WSContCliente WSCC = new WSContCliente(URL);
+        WSCC.publicar();
+
+        URL = this.LeerProperties("Ventas");
+        WSContVentas WSCV = new WSContVentas(URL);
+        WSCV.publicar();
+       
+//        URL = this.LeerProperties("ConsultaUsuario");
+//        WSContVentas WSCV = new WSContVentas(URL);
+//        WSCV.publicar();
+//        
+//        URL = this.LeerProperties("ConsultaUsuario");
+//        WSContVentas WSCV = new WSContVentas(URL);
+//        WSCV.publicar();
+    }
+
+    
+
+
     private void cargarInicio() {
         
         ICV.cargarproductos();
@@ -467,4 +527,5 @@ public class Principal extends javax.swing.JFrame {
             System.err.println(e.getMessage());
         }
     }
+
 }

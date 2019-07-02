@@ -37,7 +37,6 @@ public class venta implements Serializable {
     @Temporal(javax.persistence.TemporalType.DATE)
     private Date fecha;
 
-
     @ManyToOne
     cliente cliente;
 
