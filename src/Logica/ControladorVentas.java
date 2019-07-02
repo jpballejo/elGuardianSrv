@@ -15,6 +15,7 @@ import java.util.Iterator;
 import Persistencia.persistencia;
 import Persistencia.productoPersistencia;
 import java.io.IOException;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -27,7 +28,8 @@ public class ControladorVentas implements iControladorVentas {
     ventaPersistencia ventapersist = ventaPersistencia.getventaPersisInstace();
     List<producto> productos;
     List<producto> avender = new ArrayList<>();
-    private String rutaGuardarimgProductos="C:/Users/PabloP/Documents/NetBeansProjects/GuardianWeb/web/img/imgprod/";
+    String destino =System.getProperty("user.dir");
+    private String ruta=Paths.get(destino).getParent().getParent().toString() +"/GuardianWeb/web/img/imgprod/";
 
     @Override
     public List<producto> productosaVender() {
@@ -126,24 +128,48 @@ public class ControladorVentas implements iControladorVentas {
 
     }
 
-    public boolean AltaVenta(List<producto> listaventa) {
-        float preciototal = this.calcularpreciototal(listaventa);
-        int cantidad = 0;
+    public boolean AltaVenta(List<producto> listaventa,cliente c) {
+         venta v = new venta();
+         Date fecha = new Date();
+         v.setFecha(fecha);
+        //float preciototal = this.calcularpreciototal(listaventa);
+       // int cantidad = 0;
         for (int x = listaventa.size() - 1; x >= 0; x--) {
             producto produ = (producto) listaventa.get(x);
-            cantidad = cantidad + produ.getCantidad();
+            detalleVenta dv = new detalleVenta();
+            dv.setCantidad(produ.getCantidad());
+            dv.setProducto(produ);
+            Persistencia.persistencia.getInstance().persis(dv);
+            v.getDetalles().add(dv);
+            v.setCliente(c);
         }
-        detalleVenta dv = new detalleVenta();
-        dv.setCantidad(cantidad);
-        dv.setListaProducto(listaventa);
-        dv.setPrecioTotalProductos(preciototal);
-        Persistencia.persistencia.getInstance().persis(dv);
-        Date fecha = new Date();
-        venta v = new venta();
-        v.setFecha(fecha);
-        v.setDetalles(dv);
+ 
+        //dv.setPrecioTotalProductos(preciototal);
+        
+      
         boolean ok = Persistencia.persistencia.getInstance().persis(v);
         return ok;
+        
+        
+        
+        
+//        float preciototal = this.calcularpreciototal(listaventa);
+//        int cantidad = 0;
+//        for (int x = listaventa.size() - 1; x >= 0; x--) {
+//            producto produ = (producto) listaventa.get(x);
+//            cantidad = cantidad + produ.getCantidad();
+//        }
+//        detalleVenta dv = new detalleVenta();
+//        dv.setCantidad(cantidad);
+//        dv.setListaProducto(listaventa);
+//        dv.setPrecioTotalProductos(preciototal);
+//        Persistencia.persistencia.getInstance().persis(dv);
+//        Date fecha = new Date();
+//        venta v = new venta();
+//        v.setFecha(fecha);
+//        v.setDetalles(dv);
+//        boolean ok = Persistencia.persistencia.getInstance().persis(v);
+//        return ok;
     }
 
     public String getRutaGuardarimgProductos() {

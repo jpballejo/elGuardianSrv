@@ -15,6 +15,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
@@ -91,8 +92,9 @@ public class utilidades {
      * @throws javax.mail.internet.AddressException
      *
      */
-    public static boolean enviarConGMail(String destinatario, String asunto, String cuerpo, String user, String pass) throws AddressException {
+    public static boolean enviarConGMail(String destinatario, String asunto, String cuerpo, String user, String pass,String token) throws AddressException {
         Properties props = new Properties();
+        utilidades u =new utilidades();
         final String username = "elGuardianEsteticaCanina@gmail.com";
         final String password = "elguardian12345";
         props.setProperty("mail.smtp.host", "smtp.gmail.com");
@@ -112,7 +114,12 @@ public class utilidades {
             message.setFrom(new InternetAddress(username));
             message.addRecipient(javax.mail.Message.RecipientType.TO, new InternetAddress(destinatario));
             message.setSubject(asunto);
-            message.setText(cuerpo);
+            if(token != null){
+            message.setText("Usted se ha registrado con exito en El Guardian Estetica Canina.\nPorfavor ingrese al siguiente link \nhttp://localhost:8080/GuardianWeb/ServletValidarCuenta"
+                    +" "+"\n y valide su cuenta con el siguiente cÃ³digo: "+token);
+            }else{
+                message.setText(cuerpo);
+            }
             javax.mail.Transport t = session.getTransport("smtp");
             t.connect(username, password);
             t.sendMessage(message, message.getAllRecipients());
@@ -219,6 +226,24 @@ public class utilidades {
 
         }
         return write;
+    }
+    
+    public boolean salvarImagenV2(InputStream inp, String ruta) throws IOException {
+ try {
+                OutputStream out = new FileOutputStream(ruta);
+                byte[] bufer = new byte[1024];
+                int largo;
+                while ((largo = inp.read(bufer)) > 0) {
+                    out.write(bufer, 0, largo);
+                }
+                inp.close();
+                out.close();
+                return true;
+            } catch (FileNotFoundException e) {
+                System.err.println(e.getMessage());
+                return false;
+            }
+
     }
 
     /**
@@ -407,5 +432,19 @@ public class utilidades {
         if ((car < '0' || car > '9') && (car < ',' || car > '.')) {
             evt.consume();
         }
+    }
+    
+    public String generarNombreFoto(String mascota,String tel,String cliente) {
+        String nombre;
+        nombre = "MASCOTA" + mascota + "CLIENTE" + tel;
+        return nombre;
+    }
+    
+    public static String GenerarToken(){
+        SecureRandom random = new SecureRandom();
+        byte bytes[] = new byte[20];
+        random.nextBytes(bytes);
+        String token = bytes.toString();
+        return token;
     }
 }

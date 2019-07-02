@@ -5,11 +5,15 @@
  */
 package Servicios;
 
+
 import ListServicios.ListMascota;
+import ListServicios.ListRazas;
+import Logica.PublicarLista;
 import Logica.cliente;
 import Logica.fabricaElGuardian;
+import Logica.mascota;
+import java.io.IOException;
 import javax.annotation.Resource;
-import javax.annotation.Resources;
 import javax.jws.WebMethod;
 import javax.jws.WebParam;
 import javax.jws.WebService;
@@ -29,8 +33,7 @@ public class WSContCliente {
     private WebServiceContext context;
     private Endpoint endpoint = null;
     private String direccion;
-    
-    
+
     public WSContCliente(String direccionV) {
         this.direccion = direccionV;
     }
@@ -60,8 +63,50 @@ public class WSContCliente {
 ///////////////////////////////CLIENTE//////////////////////////////////////    
     @WebMethod
     public cliente obtenerCliente(@WebParam(name = "email") String email) {
-        return fabricaElGuardian.getInstance().getInstanceIControladorCliente().getCliente(email);
+        return fabricaElGuardian.getInstance().getInstanceIControladorCliente().obtenerCliente(email);
     }
+     @WebMethod
+    public ListRazas obtenerRazas() {
+        ListRazas lr=new ListRazas();
+        lr.setLista(fabricaElGuardian.getInstance().getInstanceIControladorCliente().obtenerRazas());
+        return lr;
+    }
+     @WebMethod
+    public ListMascota obtenerMascotasCliente(cliente c) {
+        ListMascota lm = new ListMascota();
+        lm.setMascotasLista(fabricaElGuardian.getInstance().getInstanceIControladorCliente().obtenerMascotasCliente(c));
+        return lm;
+    }
+    
+    @WebMethod
+    public PublicarLista obtenerMascotas(){
+        return new PublicarLista(fabricaElGuardian.getInstance().getInstanceIControladorCliente().obtenerMascotas());
+    }
+    
+    
+    @WebMethod
+    public boolean ingresarAnimal(mascota m){
+        return fabricaElGuardian.getInstance().getInstanceIControladorCliente().altaAnimal2(m);
+    }
+     @WebMethod
+    public boolean eliminarAnimal(Long id){
+        return fabricaElGuardian.getInstance().getInstanceIControladorCliente().eliminarAnimal(id);
+    }
+    
+    @WebMethod
+    public boolean modificarAnimal(mascota m) throws IOException{
+        return fabricaElGuardian.getInstance().getInstanceIControladorCliente().ModificarMascota2(m);
+    }
+    @WebMethod
+    public mascota obtenerMascotaPorId(Long id){
+        return fabricaElGuardian.getInstance().getInstanceIControladorCliente().obtenerMascotaPorId(id);
+    }
+    
+     @WebMethod
+    public boolean activarusuario(@WebParam(name = "email")String email,@WebParam(name = "pass")String pass){
+        return  fabricaElGuardian.getInstance().getInstanceIControladorCliente().activarusuario(email,pass);
+    }
+    
 
     @WebMethod
     public void AgregarCliente(@WebParam(name = "cedula") String cedula, @WebParam(name = "nombre") String nombre, @WebParam(name = "apellido") String apellido, @WebParam(name = "correo") String correo, @WebParam(name = "telefono") String telefono, @WebParam(name = "direccion") String direccion, @WebParam(name = "hash") String hash) {
@@ -75,7 +120,7 @@ public class WSContCliente {
         clie.setDireccion(direccion);
         clie.setPassword(hash);
 
-        fabricaElGuardian.getInstance().getInstanceIControladorCliente().altaClienteWeb(clie);
+        fabricaElGuardian.getInstance().getInstanceIControladorCliente().altaCliente(clie);
     }
 
     @WebMethod

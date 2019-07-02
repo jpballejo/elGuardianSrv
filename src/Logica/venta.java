@@ -6,6 +6,7 @@
 package Logica;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
@@ -35,16 +36,28 @@ public class venta implements Serializable {
     private Date fecha;
     
     @OneToOne
-    private detalleVenta detalles;
+    private cliente cliente;
 
-    public detalleVenta getDetalles() {
+    public cliente getCliente() {
+        return cliente;
+    }
+
+    public void setCliente(cliente cliente) {
+        this.cliente = cliente;
+    }
+    
+    @OneToMany
+    private List<detalleVenta> detalles;
+
+    public List<detalleVenta> getDetalles() {
         return detalles;
     }
 
-    public void setDetalles(detalleVenta detalles) {
+    public void setDetalles(List<detalleVenta> detalles) {
         this.detalles = detalles;
     }
     public venta() {
+        this.detalles = new ArrayList<>();
     }
 
    /* public float getPrecioTotalFinal() {
@@ -107,5 +120,6 @@ public class venta implements Serializable {
     }
 
   
+
 
 }

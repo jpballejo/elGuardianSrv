@@ -12,9 +12,13 @@ import Logica.raza;
 import Logica.utilidades;
 import java.awt.Image;
 import java.awt.image.BufferedImage;
+import java.io.IOException;
+import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.DefaultListModel;
 import javax.swing.ImageIcon;
 import javax.swing.JComboBox;
@@ -38,7 +42,9 @@ public class JIF_animalAlta extends javax.swing.JInternalFrame {
     private utilidades util = utilidades.getInstance();
     private DefaultListModel modelo = null;
     private HashMap<String, String> clientes = new HashMap<>();
-    String rutaFoto = "/home/jp/Escritorio/java2019/elGuardianServidor/ImagenesMascotas/";
+String rutaFoto = System.getProperty("user.dir") + "\\ImagenesMascotas\\";
+    String destino =System.getProperty("user.dir");
+    String rutaDestino=Paths.get(destino).getParent().getParent().toString() + "/GuardianWeb/web/img/ImagenMascota/";
 ///////////////GET-SET////////////////
 
     public HashMap<String, String> getClientes() {
@@ -148,6 +154,11 @@ public class JIF_animalAlta extends javax.swing.JInternalFrame {
         });
 
         jComboClientes.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
+        jComboClientes.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jComboClientesActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
@@ -265,13 +276,26 @@ public class JIF_animalAlta extends javax.swing.JInternalFrame {
 
     private void btn_aceptarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_aceptarActionPerformed
 
-        altaMascota();
+       try {
+            altaMascota();
+        } catch (IOException ex) {
+            Logger.getLogger(JIF_animalAlta.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        JIF_animal mp = new JIF_animal(escritorio);
+        this.escritorio.add(mp);
+         mp.setVisible(true);
+         mp.toFront();
+         this.setVisible(false);
         // TODO add your handling code here:
     }//GEN-LAST:event_btn_aceptarActionPerformed
 
     private void jText_buscarRazaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jText_buscarRazaActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_jText_buscarRazaActionPerformed
+
+    private void jComboClientesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jComboClientesActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jComboClientesActionPerformed
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
@@ -346,7 +370,7 @@ public class JIF_animalAlta extends javax.swing.JInternalFrame {
     }
 
     private boolean validarDatos() {
-        if (JText_nomMascota.getText() == null) {
+        if (JText_nomMascota.getText().equals("")) {
             JOptionPane.showMessageDialog(this, "Debe ingresar un nombre para la mascota!");
             JText_nomMascota.requestFocus();
             JText_nomMascota.selectAll();
@@ -367,33 +391,41 @@ public class JIF_animalAlta extends javax.swing.JInternalFrame {
 
     }
 
-    private void altaMascota() {
+    private void altaMascota() throws IOException{
         if (validarDatos()) {
             int res = JOptionPane.showConfirmDialog(this, "Desea dar de alta la mascota: " + JText_nomMascota.getText() + " ?");
             if (res == 0) {
                 boolean altaAnimal = contC.altaAnimal(this.construirMascota());
                 if (altaAnimal) {
-                    util.salvarImagen(fotoMascota, rutaFoto, generarNombreFoto(), 0);
-
+                    if(fotoMascota != null){
+                    util.salvarImagen(fotoMascota, rutaFoto, util.generarNombreFoto(JText_nomMascota.getText(),contC.getCliente(this.getId()).getTel_cel(),contC.getCliente(this.getId()).getCorreo()), 0);
+                    this.util.copiarArchivo(this.rutaFoto + util.generarNombreFoto(JText_nomMascota.getText(),contC.getCliente(this.getId()).getTel_cel(),contC.getCliente(this.getId()).getCorreo()) + ".png", this.rutaDestino + util.generarNombreFoto(JText_nomMascota.getText(),contC.getCliente(this.getId()).getTel_cel(),contC.getCliente(this.getId()).getCorreo()) + ".png");
+                    }
                     JOptionPane.showMessageDialog(this, "La mascota: " + JText_nomMascota.getText() + " fue dada de alta con exito!");
                     limpiar();
-                    this.dispose();
                 }
-
+                
             }
         }
     }
 
-    private mascota construirMascota() {
+    private mascota construirMascota() throws IOException {
         mascota msctNew = new mascota();
         msctNew.setNombre(JText_nomMascota.getText());
         if (!jTextArea1.getText().isEmpty()) {
             msctNew.setDescripcion(jTextArea1.getText());
+        }else{
+            msctNew.setDescripcion("");
         }
         if (fotoMascota != null) {
-            msctNew.setFoto(rutaFoto + generarNombreFoto() + ".png");
+           
+            msctNew.setFoto(util.generarNombreFoto(JText_nomMascota.getText(),contC.getCliente(this.getId()).getTel_cel(),contC.getCliente(this.getId()).getCorreo()) + ".png");
+        }else{
+             msctNew.setFoto("default.png");
         }
         msctNew.setRaza((raza) contC.getRaza((String) jListRaza.getSelectedValue()));
+        int index = jComboClientes.getSelectedIndex();
+        String cortar1 = jComboClientes.getItemAt(index);
         msctNew.setCliente(contC.getCliente(this.getId()));
         return msctNew;
     }
@@ -406,12 +438,6 @@ public class JIF_animalAlta extends javax.swing.JInternalFrame {
         id = split[0];
         return id;
 
-    }
-
-    private String generarNombreFoto() {
-        String nombre;
-        nombre = "MASCOTA_" + JText_nomMascota.getText() + "_CLIENTE_" + contC.getCliente(this.getId()).getTel_cel();
-        return nombre;
     }
 
 }

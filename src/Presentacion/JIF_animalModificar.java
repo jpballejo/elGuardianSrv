@@ -40,7 +40,7 @@ public class JIF_animalModificar extends javax.swing.JInternalFrame {
     private controladorCliente contC = (controladorCliente) fabricaElGuardian.getInstance().getInstanceIControladorCliente();
     private DefaultListModel modelo = null;
     private HashMap<String, String> clientes = new HashMap<>();
-    String rutaFoto = "/home/jp/Escritorio/elGuardianServidor/ImagenesMascotas/";
+    String rutaFoto =System.getProperty("user.dir") + "\\ImagenesMascotas\\";
     private final Long idMascota;
     utilidades util = utilidades.getInstance();
     private DefaultListModel dlm = new DefaultListModel();
@@ -384,13 +384,18 @@ public class JIF_animalModificar extends javax.swing.JInternalFrame {
                 if (fotoMascotaNueva != null) {
                     this.msc.setFoto(rutaFoto + generarNombreFoto() + ".png");
                 }
-                boolean modificarAnimal = contC.modificarAnimal(this.msc);
+                boolean modificarAnimal = contC.ModificarMascota(this.msc);
                 if (modificarAnimal) {
+                    if(fotoMascotaNueva != null){
                     util.salvarImagen(fotoMascotaNueva, rutaFoto, generarNombreFoto(), 0);
-
+                    }
                     JOptionPane.showMessageDialog(this, "Se ha modificado con exito la mascota!");
                     limpiar();
-                    this.dispose();
+                   // this.dispose();
+                    this.setVisible(false);
+                    JIF_animal ja=new JIF_animal(this.jPadre);
+                    this.jPadre.add(ja);
+                    ja.setVisible(true);
 
                 }
             }
@@ -400,7 +405,7 @@ public class JIF_animalModificar extends javax.swing.JInternalFrame {
     }
 
     public void levantarImg(String rutImg) {
-        BufferedImage image = (BufferedImage) util.dameEstaImagen(rutImg);
+        BufferedImage image = (BufferedImage) util.dameEstaImagen(rutaFoto+rutImg);
         Jlab_foto.setIcon(new ImageIcon(rutImg));
         Image scaledInstance = image.getScaledInstance(231, 184, Image.SCALE_DEFAULT);
         Jlab_foto.setIcon(new ImageIcon(scaledInstance));
@@ -409,7 +414,7 @@ public class JIF_animalModificar extends javax.swing.JInternalFrame {
 
     private String generarNombreFoto() {
         String nombre = "sample";
-        nombre = "MASCOTA_" + JText_nomMascota.getText() + "_CLIENTE_" + msc.getCliente().getCorreo();
+        nombre = "MASCOTA" + JText_nomMascota.getText() + "CLIENTE" + msc.getCliente().getCorreo();
         return nombre;
     }
 }

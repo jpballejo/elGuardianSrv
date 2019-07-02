@@ -14,6 +14,7 @@ import javax.persistence.Id;
 import javax.persistence.Inheritance;
 import javax.persistence.InheritanceType;
 import javax.persistence.ManyToOne;
+import javax.persistence.Transient;
 
 /**
  *
@@ -34,6 +35,16 @@ public class mascota implements Serializable {
     private cliente cliente;
     private String descripcion;
     private String foto;
+    @Transient
+    private byte[] foto2;
+
+    public byte[] getFoto2() {
+        return foto2;
+    }
+
+    public void setFoto2(byte[] foto2) {
+        this.foto2 = foto2;
+    }
 
     public mascota() {
     }
@@ -109,7 +120,7 @@ public class mascota implements Serializable {
 
     @Override
     public String toString() {
-        return "Id/" + id + "/Nombre/" + nombre + "/Raza/" + raza.getRaza() +"/Cliente/" + cliente.getCedula()+"/Descripcion/"+descripcion ;
+        return "Id/" + id + "/Nombre/" + nombre + "/Raza/" + raza.getRaza() + "/Cliente/" + cliente.getCedula() + "/Descripcion/" + descripcion;
     }
 
     public String getDescripcion() {

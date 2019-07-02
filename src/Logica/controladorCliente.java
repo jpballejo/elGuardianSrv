@@ -18,6 +18,13 @@ import ClientesRest.apiCliente;
 import ObjetosParaWeb.clienteWS;
 import ObjetosParaWeb.mascotaWS;
 import Persistencia.animalPersistencia;
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Iterator;
 
 /**
@@ -34,9 +41,14 @@ public class controladorCliente implements iControladorCliente {
     private animalPersistencia aPer = animalPersistencia.getInstance();
     private clientePersistencia cPer = clientePersistencia.getInstance();
     private apiCliente restCliente = apiCliente.getInstance();
+    String rutaFoto = System.getProperty("user.dir") + "\\ImagenesMascotas\\";
+    String destino =System.getProperty("user.dir");
+    String rutaDestino=Paths.get(destino).getParent().getParent().toString() + "/GuardianWeb/web/img/ImagenMascota/";
     ////////////Arreglos////////////////
     private HashMap<String, cliente> clientes = new HashMap<>();
-    private HashMap<String, mascota> mascotas = new HashMap<>();
+    // private HashMap<String, mascota> mascotas = new HashMap<>();
+    List<mascota> mascotas = new ArrayList<>();
+    List<String> razas = new ArrayList<>();
 
     public static controladorCliente getInstance() {
         if (instance == null) {
@@ -83,6 +95,7 @@ public class controladorCliente implements iControladorCliente {
             cliente cli = (cliente) persistencia.getObjeto(id, cliente.class);
 
             if (cli != null) {
+                aPer.ElminarMascotasCliente(cli);
                 return persistencia.eliminar((Object) cli);
             } else {
                 return false;
@@ -125,6 +138,12 @@ public class controladorCliente implements iControladorCliente {
         }
     }
 
+    @Override
+    public cliente obtenerCliente(String email) {
+        cliente c = cPer.ObtenerCliente(email);
+        return c;
+    }
+
     /**
      * Funcion que modifica un cliente
      *
@@ -145,17 +164,17 @@ public class controladorCliente implements iControladorCliente {
      */
     @Override
     public boolean resetearPassword(String email) {
-     try {
+        try {
             cliente cliPassCambio = this.getCliente(email);
             codificador a = new codificador();
             String pass = this.generarPassword();
             String hash = a.sha1(pass);
             cliPassCambio.setPassword(hash);
-            if (persistencia.getInstance().modificar((Object)cliPassCambio)) {
-                utilidades.enviarConGMail(cliPassCambio.getCorreo(), 
+            if (persistencia.getInstance().modificar((Object) cliPassCambio)) {
+                utilidades.enviarConGMail(cliPassCambio.getCorreo(),
                         "Reseteo de contraseña", "Su contraseña a sido reseteada con exito, "
-                                + "puede ingresar al sitio con la siguiente contraseña: " + 
-                                pass, null, null);
+                        + "puede ingresar al sitio con la siguiente contraseña: "
+                        + pass, null, null, null);
 
                 return true;
             }
@@ -176,12 +195,15 @@ public class controladorCliente implements iControladorCliente {
     @Override
     public boolean altaCliente(cliente clienteNuevo) {
         try {
-            clienteNuevo.setPassword(this.generarPassword());
+            // clienteNuevo.setPassword(this.generarPassword());
             letraMayuscula(clienteNuevo);
             if (!persistencia.existe(clienteNuevo)) {
+
+                String token = utilidades.GenerarToken();
+                clienteNuevo.setToken(token);
                 if (persistencia.persis((Object) clienteNuevo)) {
 
-                    utilidades.enviarConGMail(clienteNuevo.getCorreo(), "Usuario Nuevo", "EL usuario a sido registrado con exito!", null, null);
+                    utilidades.enviarConGMail(clienteNuevo.getCorreo(), "Usuario Nuevo", "EL usuario a sido registrado con exito!", null, null, token);
 
                     return true;
 
@@ -222,7 +244,32 @@ public class controladorCliente implements iControladorCliente {
         try {
             this.letraMayuscula(mascota);
             if (!persistencia.existe(mascota)) {
+                this.mascotas.add(mascota);
                 return persistencia.persis(mascota);
+            } else {
+                return false;
+            }
+        } catch (Exception e) {
+            System.err.println(e.getMessage() + " CAUSA: " + e.getCause());
+            return false;
+        }
+    }
+
+    public boolean altaAnimal2(mascota mascota) {
+        try {
+            this.letraMayuscula(mascota);
+            if (!persistencia.existe(mascota)) {
+                
+                if (persistencia.persis(mascota)) {
+                    if (!mascota.getFoto().equals("default.png")) {
+                        InputStream is = new ByteArrayInputStream(mascota.getFoto2());
+                        util.salvarImagenV2(is, rutaFoto + util.generarNombreFoto(mascota.getNombre(), mascota.getCliente().getTel_cel(),mascota.getCliente().getCorreo()) + ".png");
+                        this.util.copiarArchivo(this.rutaFoto + util.generarNombreFoto(mascota.getNombre(), mascota.getCliente().getTel_cel(),mascota.getCliente().getCorreo()) + ".png", this.rutaDestino + this.util.generarNombreFoto(mascota.getNombre(), mascota.getCliente().getTel_cel(),mascota.getCliente().getCorreo()) + ".png");
+                        mascota.setFoto(util.generarNombreFoto(mascota.getNombre(), mascota.getCliente().getTel_cel(),mascota.getCliente().getCorreo()) + ".png");  
+                    }
+                    this.mascotas.add(mascota);
+                }
+                return true;
             } else {
                 return false;
             }
@@ -243,6 +290,19 @@ public class controladorCliente implements iControladorCliente {
         try {
             mascota mascota = (mascota) aPer.getMascota(id);
             if (aPer.eliminar((Object) mascota)) {
+                Iterator it = this.mascotas.iterator();
+                while (it.hasNext()) {
+                    mascota m = (mascota) it.next();
+                    if (m.getId() == id) {
+                        if(!m.getFoto().equals("default.png")){
+                            Path p=Paths.get(this.rutaFoto + m.getFoto());
+                            Files.delete(p);
+                             Path p2=Paths.get(this.rutaDestino+ m.getFoto());
+                            Files.delete(p2);
+                        }
+                        it.remove();
+                    }
+                }
                 return true;
             }
         } catch (Exception e) {
@@ -258,7 +318,7 @@ public class controladorCliente implements iControladorCliente {
      * @param mascota
      * @return
      */
-    @Override
+    /* @Override
     public boolean modificarAnimal(mascota mascota) {
         try {
             this.letraMayuscula(mascota);
@@ -268,8 +328,7 @@ public class controladorCliente implements iControladorCliente {
             return false;
         }
 
-    }
-
+    }*/
     /**
      * Funcion que agrega una nueva raza en el sistema
      *
@@ -446,20 +505,144 @@ public class controladorCliente implements iControladorCliente {
         }
         return mascotasSistema;
     }
-    
+
     @Override
     public boolean altaClienteWeb(cliente clienteNuevo) {
-       
-            if (!persistencia.existe(clienteNuevo)) {
-                if (persistencia.persis((Object) clienteNuevo)) {
 
-                    return true;
+        if (!persistencia.existe(clienteNuevo)) {
+            if (persistencia.persis((Object) clienteNuevo)) {
 
-                }
+                return true;
+
             }
+        }
 
         return false;
     }
+
+    @Override
+    public boolean activarusuario(String email, String pass) {
+        cliente c = this.obtenerCliente(email);
+        c.setEstado(true);
+        c.setPassword(pass);
+        return persistencia.modificar(c);
+    }
+
+    public boolean ingresarAnimal(mascota m) {
+        return this.persistencia.persis(m);
+    }
+
+    @Override
+    public List<mascota> obtenerMascotas() {
+        return this.mascotas;
+    }
+
+    @Override
+    public List<mascota> obtenerMascotasCliente(cliente c) {
+        List<mascota> mascotascliente = new ArrayList<>();
+        Iterator it = this.mascotas.iterator();
+        while (it.hasNext()) {
+            mascota m = (mascota) it.next();
+            if (m.getCliente().getCorreo().equals(c.getCorreo())) {
+                mascotascliente.add(m);
+            }
+        }
+        return mascotascliente;
+    }
+
+    @Override
+    public boolean ModificarMascota(mascota m) {
+        boolean funciono = this.aPer.modificar(m);
+        if (funciono) {
+            Iterator it = this.mascotas.iterator();
+            while (it.hasNext()) {
+                mascota m2 = (mascota) it.next();
+                if (m2.getId() == m.getId()) {
+                    m2 = m;
+                    break;
+                }
+            }
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    @Override
+    public boolean ModificarMascota2(mascota m) throws IOException {
+         if (!m.getFoto().equals("default.png")) {
+                InputStream is = new ByteArrayInputStream(m.getFoto2());
+                util.salvarImagenV2(is, rutaFoto + util.generarNombreFoto(m.getNombre(), m.getCliente().getTel_cel(),m.getCliente().getCorreo()) + ".png");
+                this.util.copiarArchivo(this.rutaFoto + util.generarNombreFoto(m.getNombre(), m.getCliente().getTel_cel(),m.getCliente().getCorreo()) + ".png", this.rutaDestino + this.util.generarNombreFoto(m.getNombre(), m.getCliente().getTel_cel(),m.getCliente().getCorreo()) + ".png");
+                m.setFoto(util.generarNombreFoto(m.getNombre(), m.getCliente().getTel_cel(),m.getCliente().getCorreo()) + ".png");
+            }
+        boolean funciono = this.aPer.modificar(m);
+        if (funciono) {
+            Iterator it = this.mascotas.iterator();
+            while (it.hasNext()) {
+                mascota m2 = (mascota) it.next();
+                if (m2.getId() == m.getId()) {
+                    it.remove();
+                    this.mascotas.add(m);
+                    break;
+                }
+            }
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    @Override
+    public void cargarMascotas() {
+        this.mascotas = aPer.getListaMascotas();
+    }
+
+    @Override
+    public void CargarRazas() {
+        List<Object> ra = (List<Object>) persistencia.getListaObjetos("select * from raza", raza.class);
+        Iterator it = ra.iterator();
+        while (it.hasNext()) {
+            raza next = (raza) it.next();
+            razas.add((String) next.getRaza());
+        }
+    }
+
+    @Override
+    public List<String> obtenerRazas() {
+        return this.razas;
+    }
+
+    public mascota obtenerMascotaPorId(Long id) {
+        mascota m = new mascota();
+        Iterator it = this.mascotas.iterator();
+        while (it.hasNext()) {
+            mascota m2 = (mascota) it.next();
+            if (m2.getId() == id) {
+                m = m2;
+                break;
+            }
+
+        }
+        return m;
+    }
+    
+    @Override
+    public boolean existeMascota(String nombre,String telefono,String Cliente){
+        mascota mas=new mascota();
+        mas.setNombre(nombre);
+        this.letraMayuscula(mas);
+        String nombrefotoMascota = util.generarNombreFoto(mas.getNombre(), telefono, Cliente) +".png";
+        Iterator it = this.mascotas.iterator();
+        while(it.hasNext()){
+            mascota m =(mascota) it.next();
+            if(m.getFoto().equals(nombrefotoMascota)){
+                return true;
+            }
+        }
+        return false;
+    }
+
 //////////////////////////////////middleware para WebService///////////////
     @Override
     public List getMascotasWS() {

@@ -7,6 +7,7 @@ package Logica;
 
 import ObjetosParaWeb.clienteWS;
 import ObjetosParaWeb.mascotaWS;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -22,22 +23,28 @@ public interface iControladorCliente {
     public abstract ArrayList getClientes();
 
     public abstract boolean eliminarCliente(String cedula);
+    
+    public abstract List<mascota> obtenerMascotas();
 
     public abstract String generarPassword();
 
     public abstract cliente getCliente(String correo);
 
     public abstract boolean modificarCliente(cliente clieMod);
+    
+    public abstract cliente obtenerCliente(String email);
 
     public abstract boolean resetearPassword(String correo);
 
     public abstract boolean altaCliente(cliente clienteNuevo);
 
     public abstract boolean altaAnimal(mascota mascota);
+    
+    public abstract boolean altaAnimal2(mascota mascota);
 
     public abstract boolean eliminarAnimal(Long id);
 
-    public abstract boolean modificarAnimal(mascota mascota);
+   // public abstract boolean modificarAnimal(mascota mascota);
 
     public abstract mascota getMascota(Long id);
 
@@ -56,6 +63,22 @@ public interface iControladorCliente {
     public abstract raza getRaza(String raza);
 
     public abstract ArrayList getMascotas();
+    
+    public abstract void cargarMascotas();
+    
+    public abstract void CargarRazas();
+        
+    public abstract List<String> obtenerRazas();
+    
+    public abstract boolean activarusuario(String email,String pass);
+    
+    public abstract List<mascota> obtenerMascotasCliente(cliente c);
+    
+    public abstract mascota obtenerMascotaPorId(Long id);
+    
+    public abstract boolean ModificarMascota(mascota m);
+    
+    public abstract boolean ModificarMascota2(mascota m) throws IOException;
     /////implementar con middleware a futuro
     public abstract List getMascotasWS();
     
