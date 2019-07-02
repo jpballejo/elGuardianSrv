@@ -5,13 +5,17 @@
  */
 package Presentacion;
 
+import Logica.GenerarPDF;
 import Logica.fabricaElGuardian;
 import Logica.iControladorVentas;
 import Logica.producto;
 import Logica.utilidades;
+import java.io.IOException;
 import java.util.ArrayList;
 
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.JDesktopPane;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
@@ -65,26 +69,34 @@ public class ListarProductos extends javax.swing.JInternalFrame {
 
         TablaProd.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
-                {null, null, null, null, null},
-                {null, null, null, null, null},
-                {null, null, null, null, null},
-                {null, null, null, null, null},
-                {null, null, null, null, null},
-                {null, null, null, null, null},
-                {null, null, null, null, null},
-                {null, null, null, null, null},
-                {null, null, null, null, null},
-                {null, null, null, null, null},
-                {null, null, null, null, null},
-                {null, null, null, null, null},
-                {null, null, null, null, null},
-                {null, null, null, null, null},
-                {null, null, null, null, null}
+                {null, null, null, null, null, null},
+                {null, null, null, null, null, null},
+                {null, null, null, null, null, null},
+                {null, null, null, null, null, null},
+                {null, null, null, null, null, null},
+                {null, null, null, null, null, null},
+                {null, null, null, null, null, null},
+                {null, null, null, null, null, null},
+                {null, null, null, null, null, null},
+                {null, null, null, null, null, null},
+                {null, null, null, null, null, null},
+                {null, null, null, null, null, null},
+                {null, null, null, null, null, null},
+                {null, null, null, null, null, null},
+                {null, null, null, null, null, null}
             },
             new String [] {
-                "Codigo", "Nombre", "Precio", "Descripcion", "Disponible"
+                "Codigo", "Nombre", "Precio", "Descripcion", "Disponible", "Stock"
             }
-        ));
+        ) {
+            boolean[] canEdit = new boolean [] {
+                false, false, false, false, false, false
+            };
+
+            public boolean isCellEditable(int rowIndex, int columnIndex) {
+                return canEdit [columnIndex];
+            }
+        });
         TablaProd.setFocusable(false);
         jScrollPane1.setViewportView(TablaProd);
 
@@ -125,28 +137,28 @@ public class ListarProductos extends javax.swing.JInternalFrame {
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 538, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jButton4, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(jButton1, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(jButton2, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(jButton3, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 110, Short.MAX_VALUE))
+                    .addComponent(jButton3, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 110, Short.MAX_VALUE)
+                    .addComponent(jButton4, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                .addContainerGap(82, Short.MAX_VALUE)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 60, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(18, 18, 18)
                 .addComponent(jButton2, javax.swing.GroupLayout.PREFERRED_SIZE, 65, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(18, 18, 18)
                 .addComponent(jButton3, javax.swing.GroupLayout.PREFERRED_SIZE, 65, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(60, 60, 60)
+                .addGap(80, 80, 80)
                 .addComponent(jButton4)
                 .addGap(34, 34, 34))
             .addGroup(layout.createSequentialGroup()
                 .addGap(57, 57, 57)
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 268, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addGap(25, 116, Short.MAX_VALUE))
         );
 
         pack();
@@ -162,7 +174,7 @@ public class ListarProductos extends javax.swing.JInternalFrame {
         String nombre = model.getValueAt(index, 1).toString();
         String precio = model.getValueAt(index, 2).toString();
         String descripcion = model.getValueAt(index, 3).toString();
-        //String disponible = model.getValueAt(index, 4).toString();
+        String stock = model.getValueAt(index, 5).toString();
 
         try {
             ModificarProducto ModificarProd = new ModificarProducto(this.escritorio);
@@ -173,10 +185,11 @@ public class ListarProductos extends javax.swing.JInternalFrame {
             ModificarProd.pack();
             ModificarProd.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 
-            ModificarProd.jTextField1.setText(codigo);
+            ModificarProd.jTextField5.setText(codigo);
             ModificarProd.jTextField2.setText(nombre);
             ModificarProd.jTextField3.setText(precio);
             ModificarProd.jTextField4.setText(descripcion);
+            ModificarProd.jTextField1.setText(stock);
 
             String disponible;
             disponible = model.getValueAt(index, 4).toString();
@@ -196,7 +209,7 @@ public class ListarProductos extends javax.swing.JInternalFrame {
     private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
         int index = TablaProd.getSelectedRow();
         TableModel model = TablaProd.getModel();
-        String codigo = model.getValueAt(index, 0).toString();
+        Long codigo = Long.parseLong(model.getValueAt(index, 0).toString());
 
         int respuesta = JOptionPane.showConfirmDialog(null, "Este producto será eliminado\n Desea continuar?", "ADVERTENCIA", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
         if (respuesta == 0) {
@@ -222,15 +235,16 @@ public class ListarProductos extends javax.swing.JInternalFrame {
         altaP.setVisible(true);
     }//GEN-LAST:event_jButton3ActionPerformed
 
-   
+  
 
     public void recargarlista() {
 
         List<producto> listaP =null;
         listaP = (List<producto>) iCV.ListarProductos();
-        String[] cabeceras = util.cabeceras(listaP.get(0));
+        
       
         if (listaP.size() > 0) {
+            String[] cabeceras = util.cabeceras(listaP.get(0));
             DefaultTableModel modelo = (DefaultTableModel) TablaProd.getModel();
         //  DefaultTableModel modelo = new DefaultTableModel(cabeceras, 0);
             modelo.setRowCount(0);
@@ -244,14 +258,14 @@ public class ListarProductos extends javax.swing.JInternalFrame {
                 }
 
                 Object[] dat = {listaP.get(i).getCodigo(), listaP.get(i).getNombre(), listaP.get(i).getPrecio(),
-                    listaP.get(i).getDescripcion(), dispo};
+                    listaP.get(i).getDescripcion(), dispo,listaP.get(i).getCantidad()};
 
                 modelo.addRow(dat);
             }
           //  TablaProd.setModel(modelo);
        } else {
             JOptionPane.showMessageDialog(null, "No existen productos en el sistema!");
-            TablaProd.setEnabled(false);
+            TablaProd.setVisible(false);
         }
 
     }
