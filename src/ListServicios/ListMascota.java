@@ -29,4 +29,6 @@ public class ListMascota {
         this.mascotasLista = mascotasLista;
     }
     
+    
+    
 }

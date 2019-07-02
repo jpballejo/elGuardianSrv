@@ -5,7 +5,17 @@
  */
 package Servicios;
 
+import ListServicios.ListTurnos;
+import Logica.ControladorReservas;
+import Logica.controladorServicios;
+import Logica.fabricaElGuardian;
+import Logica.utilidades;
+import ObjetosParaWeb.reservaWS;
+import java.util.List;
 import javax.annotation.Resource;
+import javax.jws.WebMethod;
+import javax.jws.WebParam;
+import javax.jws.WebResult;
 import javax.jws.WebService;
 import javax.jws.soap.SOAPBinding;
 import javax.xml.ws.Endpoint;
@@ -18,10 +28,13 @@ import javax.xml.ws.WebServiceContext;
 @WebService(serviceName = "ServicioContReserva")
 @SOAPBinding(style = SOAPBinding.Style.RPC)
 public class WSContReserva {
-     @Resource
+
+    @Resource
     private WebServiceContext context;
     private Endpoint endpoint = null;
     private String direccion;
+    private ControladorReservas contRes = (ControladorReservas) fabricaElGuardian.getInstance().getInstanceIControladorReservas();
+    private controladorServicios contSrv = (controladorServicios) fabricaElGuardian.getInstance().getInstanceIControladorServicios();
 
     public WSContReserva(String direccionV) {
         this.direccion = direccionV;
@@ -44,5 +57,59 @@ public class WSContReserva {
         } catch (Exception e) {
             System.err.println(e.getMessage());
         }
-    }  
+    }
+    ////////////////////////////////////WEBMETHOD's/////////////////////////////
+
+    ////////////////////////////////////abm-Reserva///////////////////////////////////
+    @WebMethod
+    public boolean altaReserva(@WebParam(name = "reserva") reservaWS reserva) {
+        return contRes.altaReservaWS(reserva);
+    }
+
+    @WebMethod
+    public boolean eliminarReserva(@WebParam(name = "idReserva") long idReserva) {
+        return contRes.eliminarReservaWS(idReserva);
+    }
+
+    @WebMethod
+    public boolean modificarReserva(@WebParam(name = "reserva") reservaWS reserva) {
+        return contRes.modificarReservaWS(reserva);
+    }
+    ////++++++//////////////+++++++++++++////////////+++++++++++///////////+++++/
+
+    /////////////////////////////gestion turnos/////////////////////////////////////////
+    @WebMethod
+    @WebResult(name = "listaTurnos")
+    public ListTurnos getTurnosDisponibles(@WebParam(name = "fecha") String fecha) {
+
+     //   conArr.setLista(contRes.cargarTurnosDisponiblesList(utilidades.fechaDate(fecha, null)));
+        ListTurnos lt= new ListTurnos();
+        lt.setListTurnosWS(contRes.cargarTurnosDisponiblesList(utilidades.fechaDate(fecha, null)));
+        
+        return lt;
+
+    }
+
+    ////++++++//////////////+++++++++++++////////////+++++++++++///////////+++++/
+    ///////////////////////////////Tipo de Servicio////////////////////////////////////
+    @WebMethod
+    @WebResult(name = "listaEsquila")
+    public List<String> getTipoEsquilas() {
+        return contSrv.getListaTipoEsquilaWS();
+    }
+
+    @WebMethod
+    @WebResult(name = "listaBanio")
+    public List<String> getTipoBanio() {
+        return contSrv.getListaTipoBanioWS();
+    }
+
+    @WebMethod
+    @WebResult(name = "precio")
+    public float getPrecioPaseo() {
+        return contSrv.getPrecioPaseo();
+    }
+
+    ////++++++//////////////+++++++++++++////////////+++++++++++///////////+++++/
+    ////++++++//////////////+++++++++++++////////////+++++++++++///////////+++++/
 }

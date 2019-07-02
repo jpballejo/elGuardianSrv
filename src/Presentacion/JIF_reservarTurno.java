@@ -102,7 +102,7 @@ public class JIF_reservarTurno extends javax.swing.JInternalFrame {
         cargarClientes();//carga los clientes
         //cargarTurnosDisponibles();//carga los turnos
         cargarServiciosList();//carga los servicios la lista
-        contSrv.cargarTiposServicios();//carga los tipos de servicios
+       
 
     }
 

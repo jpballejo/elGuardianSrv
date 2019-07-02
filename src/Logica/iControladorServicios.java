@@ -17,4 +17,5 @@ public interface iControladorServicios {
     public boolean setPrecioPaseo(float precio);
     public float getPrecioPaseo();
     
+    
 }

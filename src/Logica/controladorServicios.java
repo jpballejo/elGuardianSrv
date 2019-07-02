@@ -108,23 +108,41 @@ public class controladorServicios implements iControladorServicios {
         float precio = 0;
         try {
             precio = (float) per.ejecutarSqlConRes("Select precio from precioPaseo where id=1");
-    
+
         } catch (Exception e) {
             System.out.println(e.getMessage());
         }
         return precio;
     }
-    
+
     @Override
-    public boolean setPrecioPaseo(float precio){
+    public boolean setPrecioPaseo(float precio) {
         try {
-        return per.ejecutarSql("update precioPaseo set precio='"+precio+"' where id=1");
-        
+            return per.ejecutarSql("update precioPaseo set precio='" + precio + "' where id=1");
+
         } catch (Exception e) {
             System.out.println(e.getMessage());
             return false;
         }
-    
+
+    }
+
+    public List<String> getListaTipoBanioWS() {
+        List<String> tipos = new ArrayList<>();
+        List serviciosXtipo = this.getServiciosXtipo("BANIO");
+        for (Object SXT : serviciosXtipo) {
+            tipos.add(((tipoBanio) SXT).getTipo());
+        }
+        return tipos;
+    }
+
+    public List<String> getListaTipoEsquilaWS() {
+        List<String> tipos = new ArrayList<>();
+        List serviciosXtipo = this.getServiciosXtipo("BANIO");
+        for (Object SXT : serviciosXtipo) {
+            tipos.add(((tipoEsquila) SXT).getTipo());
+        }
+        return tipos;
     }
 
 }

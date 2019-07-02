@@ -12,6 +12,7 @@ import Logica.hiloHijo;
 import Logica.hiloMadre;
 import Logica.iControladorCliente;
 import Logica.iControladorReservas;
+import Logica.iControladorServicios;
 import Logica.iControladorVentas;
 import Logica.reserva;
 import Logica.utilidades;
@@ -39,6 +40,7 @@ public class Principal extends javax.swing.JFrame {
     iControladorCliente ICC = fabricaElGuardian.getInstance().getInstanceIControladorCliente();
     iControladorVentas ICV = fabricaElGuardian.getInstance().getInstanceIControladorVentas();
     iControladorReservas ICR = fabricaElGuardian.getInstance().getInstanceIControladorReservas();
+    iControladorServicios ICS=fabricaElGuardian.getInstance().getInstanceIControladorServicios();
     //ICC.cargarMascotas();
     // private JDesktopPane escritorioPrincipal = new JDesktopPane();
     private Long idReserva;
@@ -49,11 +51,7 @@ public class Principal extends javax.swing.JFrame {
     public Principal() throws AddressException {
         this.setExtendedState(MAXIMIZED_BOTH);
         this.setLocationRelativeTo(null);
-        eM = Persistencia.persistencia.getInstance().getEm();
-        eM.getTransaction().begin();
-        eM.flush();
-        eM.getTransaction().commit();
-        UIManager.LookAndFeelInfo[] installedLookAndFeels = UIManager.getInstalledLookAndFeels();
+             UIManager.LookAndFeelInfo[] installedLookAndFeels = UIManager.getInstalledLookAndFeels();
         for (UIManager.LookAndFeelInfo laf : installedLookAndFeels) {
         }
         try {
@@ -427,6 +425,7 @@ public class Principal extends javax.swing.JFrame {
     private void cargarInicio() {
         
         ICV.cargarproductos();
+        ICS.cargarTiposServicios();//carga los tipos de servicios
         // cargarReservas();
         hiloMadre m = new hiloMadre();
         m.start();
