@@ -14,21 +14,20 @@ import java.util.Iterator;
  */
 import Persistencia.persistencia;
 import Persistencia.productoPersistencia;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.persistence.EntityManager;
 
 public class ControladorVentas implements iControladorVentas {
 
-    persistencia per = persistencia.getInstance();
     ventaPersistencia ventapersist = ventaPersistencia.getventaPersisInstace();
-    controladorCliente contC = controladorCliente.getInstance();
     List<producto> productos;
     List<producto> avender = new ArrayList<>();
-    private String rutaGuardarimgProductos;
+    private String rutaGuardarimgProductos="C:/Users/PabloP/Documents/NetBeansProjects/GuardianWeb/web/img/imgprod/";
 
     @Override
     public List<producto> productosaVender() {
@@ -36,13 +35,13 @@ public class ControladorVentas implements iControladorVentas {
     }
 
     @Override
-    public void setaVender(String codigo) {
+    public void setaVender(Long codigo) {
         producto p = ObtenerProducto(codigo);
         this.avender.add(p);
     }
 
     @Override
-    public void eliminaraVender(String codigo) {
+    public void eliminaraVender(Long codigo) {
         producto p = ObtenerProducto(codigo);
         this.avender.remove(p);
     }
@@ -84,7 +83,7 @@ public class ControladorVentas implements iControladorVentas {
         Iterator it = listaventa.iterator();
         while (it.hasNext()) {
             producto p = (producto) it.next();
-          //  preciototal = preciototal + (p.getPrecio() * p.getCantidad());
+            preciototal = preciototal + (p.getPrecio() * p.getCantidad());
         }
         return preciototal;
     }
@@ -101,7 +100,7 @@ public class ControladorVentas implements iControladorVentas {
     }
 
     @Override
-    public boolean EliminarProducto(String codigo) {
+    public boolean EliminarProducto(Long codigo) {
 
         boolean ok = false;
         producto p = this.ObtenerProducto(codigo);
@@ -120,50 +119,41 @@ public class ControladorVentas implements iControladorVentas {
     }
 
     @Override
-    public producto ObtenerProducto(String codigo) {
+    public producto ObtenerProducto(Long codigo) {
 
         producto p = prodPer.ObtenerProducto(codigo);
         return p;
 
     }
 
-    /**
-     *
-     * @param listaProducto
-     * @param listaventa
-     * @return
-     */
-    public boolean AltaVenta(HashMap<producto, Integer> listaProducto, String Idcli) {
-        venta nVenta = new venta();
-        for (Map.Entry<producto, Integer> entry : listaProducto.entrySet()) {
-            producto key = entry.getKey();
-            Integer value = entry.getValue();
-            detalleVenta nDetalleVenta = new detalleVenta();
-            nDetalleVenta.setCantidad(value);
-            nDetalleVenta.setProducto(key);
-            nVenta.setDetalles(nDetalleVenta);
-        }
-        nVenta.setFecha(utilidades.getInstance().getFechaActual());
-        nVenta.setCliente(contC.getCliente(Idcli));
-        return ventapersist.persis((Object) nVenta);
-
-        /* float preciototal = this.calcularpreciototal(listaventa);
-        int cantidad = 0;
+    @Override
+    public boolean AltaVenta(List<producto> listaventa) {
+         venta v = new venta();
+         Date fecha = new Date();
+         v.setFecha(fecha);
+       
         for (int x = listaventa.size() - 1; x >= 0; x--) {
             producto produ = (producto) listaventa.get(x);
-            cantidad = cantidad + produ.getCantidad();
+            detalleVenta dv = new detalleVenta();
+            //dv.setCantidad(produ.getCantidad());
+            dv.setProducto(produ);
+            dv.setPrecioTotalProductos(produ.getPrecio()*produ.getCantidad());
+            v.getDetalles().add(dv);
+            
+            int stock=produ.getCantidad()-dv.getCantidad();
+            produ.setCantidad(stock);
+            
+            if(stock==0)
+            produ.setDisponible(false);
+            
+            
+            Persistencia.persistencia.getInstance().persis(dv);
+            Persistencia.productoPersistencia.getInstance().modificar(produ);
         }
-        detalleVenta dv = new detalleVenta();
-        dv.setCantidad(cantidad);
-        dv.setListaProducto(listaventa);
-        dv.setPrecioTotalProductos(preciototal);
-        Persistencia.persistencia.getInstance().persis(dv);
-        Date fecha = new Date();
-        venta v = new venta();
-        v.setFecha(fecha);
-        v.setDetalles(dv);
+      
         boolean ok = Persistencia.persistencia.getInstance().persis(v);
-        return ok;*/
+        return ok;
+        
     }
 
     public String getRutaGuardarimgProductos() {
@@ -172,6 +162,43 @@ public class ControladorVentas implements iControladorVentas {
 
     public void setRutaGuardarimgProductos(String rutaGuardarimgProductos) {
         this.rutaGuardarimgProductos = rutaGuardarimgProductos;
+    }
+    
+    @Override
+    public boolean finalizarVenta(cliente c){
+        
+        try {
+            List<producto> prodsventa = new ArrayList<>();
+            List<detalleVenta> Productosavender= (List<detalleVenta>) c.getCompra().getDetalles();
+            Iterator it = Productosavender.iterator();
+            while (it.hasNext()){
+                detalleVenta dv=(detalleVenta) it.next();
+                producto pr =dv.getProducto();
+                prodsventa.add(pr);
+                
+            int stock=pr.getCantidad()-dv.getCantidad();
+            pr.setCantidad(stock);
+            
+            if(stock==0)
+            pr.setDisponible(false);
+            
+            Persistencia.productoPersistencia.getInstance().modificar(pr);
+                    
+                
+            }
+            
+            AltaVenta(prodsventa);
+            
+                 
+           
+            GenerarPDF gpdf= new GenerarPDF(c);
+            gpdf.createPdf();
+            return true;
+        } catch (IOException ex) {
+            Logger.getLogger(ControladorVentas.class.getName()).log(Level.SEVERE, null, ex);
+            return false;
+        }
+        
     }
 
 }

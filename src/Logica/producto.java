@@ -10,8 +10,11 @@ import java.util.List;
 import java.util.Objects;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.ManyToMany;
+import javax.persistence.OneToMany;
 
 /**
  *
@@ -22,9 +25,15 @@ public class producto implements Serializable {
 
     private static final long serialVersionUID = 1L;
     @Id
-    @Column(length = 100)
-    private String codigo;
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    private Long codigo;
+    
+    
     private String nombre;
+    private int cantidad;
+    @OneToMany
+    private List<detalleVenta> detalleVentas;
+
     private String foto;
     private float precio;
     private boolean disponible;
@@ -90,11 +99,11 @@ public class producto implements Serializable {
         return "Codigo/" + codigo + "/Precio/" + precio + "/Disponible/" + disponible + "/Descripcion/" + descripcion;
     }
 
-    public String getCodigo() {
+    public Long getCodigo() {
         return codigo;
     }
 
-    public void setCodigo(String codigo) {
+    public void setCodigo(Long codigo) {
         this.codigo = codigo;
     }
 
@@ -123,8 +132,23 @@ public class producto implements Serializable {
     }
 
     public producto() {
-    
      
+    }
+
+    public int getCantidad() {
+        return cantidad;
+    }
+
+    public void setCantidad(int cantidad) {
+        this.cantidad = cantidad;
+    }
+
+    public List<detalleVenta> getDetalleVentas() {
+        return detalleVentas;
+    }
+
+    public void setDetalleVentas(List<detalleVenta> detalleVentas) {
+        this.detalleVentas = detalleVentas;
     }
 
 }

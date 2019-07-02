@@ -36,20 +36,16 @@ public class venta implements Serializable {
 
     @Temporal(javax.persistence.TemporalType.DATE)
     private Date fecha;
+    
+    @OneToMany
+    private List<detalleVenta> detalles= new ArrayList<>();
 
-
-    @ManyToOne
-    cliente cliente;
-
-    @OneToMany (cascade = CascadeType.ALL)
-    private List<detalleVenta> detalles;
-
-    public List getDetalles() {
+    public List<detalleVenta> getDetalles() {
         return detalles;
     }
 
-    public void setDetalles(detalleVenta detalles) {
-        this.detalles.add(detalles);
+    public void setDetalles(List<detalleVenta> detalles) {
+        this.detalles = detalles;
     }
 
     public float getPrecioTotalVenta() {
@@ -68,13 +64,6 @@ public class venta implements Serializable {
     public venta() {
     }
 
-    public cliente getCliente() {
-        return cliente;
-    }
-
-    public void setCliente(cliente cliente) {
-        this.cliente = cliente;
-    }
 
     public Long getId() {
         return id;
