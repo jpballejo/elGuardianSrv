@@ -175,10 +175,11 @@ public class controladorCliente implements iControladorCliente {
         try {
             clienteNuevo.setPassword(this.generarPassword());
             letraMayuscula(clienteNuevo);
+            String contra = clienteNuevo.getPassword();
             if (!persistencia.existe(clienteNuevo)) {
                 if (persistencia.persis((Object) clienteNuevo)) {
 
-                    utilidades.enviarConGMail(clienteNuevo.getCorreo(), "Usuario Nuevo", "EL usuario a sido registrado con exito!", null, null);
+                    utilidades.enviarConGMail(clienteNuevo.getCorreo(), "Usuario Nuevo", "EL usuario a sido registrado con exito! Puede logearse con la siguiente contraseña: " + contra, null, null);
 
                     return true;
 
