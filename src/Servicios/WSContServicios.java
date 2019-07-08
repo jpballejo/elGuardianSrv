@@ -18,7 +18,8 @@ import javax.xml.ws.WebServiceContext;
 @WebService(name = "ServicioContServicios")
 @SOAPBinding(style = SOAPBinding.Style.RPC)
 public class WSContServicios {
-       @Resource
+
+    @Resource
     private WebServiceContext context;
     private Endpoint endpoint = null;
     private String direccion;
@@ -41,6 +42,7 @@ public class WSContServicios {
     public void publicar() {
         try {
             endpoint = Endpoint.publish(direccion, this);
+            System.out.println("Publique servicio: WSContServicios: " + direccion);
         } catch (Exception e) {
             System.err.println(e.getMessage());
         }

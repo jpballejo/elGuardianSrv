@@ -5,6 +5,8 @@
  */
 package Logica;
 import com.itextpdf.io.font.FontConstants;
+
+import com.itextpdf.*;
 import com.itextpdf.io.font.constants.StandardFonts;
 import com.itextpdf.io.image.ImageData;
 import com.itextpdf.io.image.ImageDataFactory;

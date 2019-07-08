@@ -5,6 +5,7 @@
  */
 package Presentacion;
 
+import Logica.ControladorProperties;
 import Logica.ControladorReservas;
 import Logica.controladorServicios;
 import Logica.fabricaElGuardian;
@@ -17,6 +18,7 @@ import Logica.iControladorVentas;
 import Logica.reserva;
 import Logica.utilidades;
 import Servicios.WSContCliente;
+import Servicios.WSContReserva;
 import Servicios.WSContVentas;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -38,19 +40,20 @@ import javax.swing.table.DefaultTableModel;
  * @author jp
  */
 public class Principal extends javax.swing.JFrame {
-    
+
     private utilidades util = utilidades.getInstance();
     private EntityManager eM;
     String cuerpo = "coso", asunto = "cospe";
     iControladorCliente ICC = fabricaElGuardian.getInstance().getInstanceIControladorCliente();
     iControladorVentas ICV = fabricaElGuardian.getInstance().getInstanceIControladorVentas();
-    
-        //ICC.cargarMascotas();
+    ControladorProperties contProperties = ControladorProperties.getInstance();
+    //ICC.cargarMascotas();
     iControladorReservas ICR = fabricaElGuardian.getInstance().getInstanceIControladorReservas();
-    iControladorServicios ICS=fabricaElGuardian.getInstance().getInstanceIControladorServicios();
+    iControladorServicios ICS = fabricaElGuardian.getInstance().getInstanceIControladorServicios();
     //ICC.cargarMascotas();
     // private JDesktopPane escritorioPrincipal = new JDesktopPane();
     private Long idReserva;
+    private Properties prop;
 
     /**
      * Creates new form Principal
@@ -58,10 +61,11 @@ public class Principal extends javax.swing.JFrame {
     public Principal() throws AddressException, UnsupportedLookAndFeelException {
         this.setExtendedState(MAXIMIZED_BOTH);
         this.setLocationRelativeTo(null);
-             UIManager.LookAndFeelInfo[] installedLookAndFeels = UIManager.getInstalledLookAndFeels();
-        for (UIManager.LookAndFeelInfo laf : installedLookAndFeels) {
-        }
+        levantarProperties();
         try {
+            UIManager.LookAndFeelInfo[] installedLookAndFeels = UIManager.getInstalledLookAndFeels();
+            for (UIManager.LookAndFeelInfo laf : installedLookAndFeels) {
+            }
             UIManager.setLookAndFeel("javax.swing.plaf.metal.MetalLookAndFeel");
         } catch (ClassNotFoundException | IllegalAccessException | InstantiationException | UnsupportedLookAndFeelException e) {
             System.err.println(e.getMessage());
@@ -332,7 +336,7 @@ public class Principal extends javax.swing.JFrame {
     }//GEN-LAST:event_jMenItem_banioEsquilaActionPerformed
 
     private void jMenuItem2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem2ActionPerformed
-                
+
         AltaProducto altaP = new AltaProducto();
         this.escritorioPrincipal.add(altaP);
         altaP.setVisible(true);       // TODO add your handling code here:
@@ -345,7 +349,7 @@ public class Principal extends javax.swing.JFrame {
     }//GEN-LAST:event_jMenuIAltaVentaActionPerformed
 
     private void jMenuListarProductosActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuListarProductosActionPerformed
-              ListarProductos lsProd = new ListarProductos(this.escritorioPrincipal);
+        ListarProductos lsProd = new ListarProductos(this.escritorioPrincipal);
         this.escritorioPrincipal.add(lsProd);
         lsProd.setVisible(true);
 // TODO add your handling code here:
@@ -376,7 +380,7 @@ public class Principal extends javax.swing.JFrame {
                 } else {
                     JOptionPane.showMessageDialog(this, "No se pudo eliminar la reserva!");
                 }
-                
+
             }
         }
 
@@ -387,14 +391,15 @@ public class Principal extends javax.swing.JFrame {
      * @param args the command line arguments
      */
     public static void main(String args[]) {
-        
+
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
                 try {
                     new Principal().setVisible(true);
-                } catch (AddressException ex) {
-                    Logger.getLogger(Principal.class.getName()).log(Level.SEVERE, null, ex);
+
                 } catch (UnsupportedLookAndFeelException ex) {
+                    Logger.getLogger(Principal.class.getName()).log(Level.SEVERE, null, ex);
+                } catch (AddressException ex) {
                     Logger.getLogger(Principal.class.getName()).log(Level.SEVERE, null, ex);
                 }
             }
@@ -427,34 +432,27 @@ public class Principal extends javax.swing.JFrame {
     public JDesktopPane getEscritorioPrincipal() {
         return escritorioPrincipal;
     }
-    
+
     public void setEscritorioPrincipal(JDesktopPane escritorioPrincipal) {
         this.escritorioPrincipal = escritorioPrincipal;
     }
-    
-      public String LeerProperties(String caso) {
+
+    private void levantarProperties() {
+        this.prop = contProperties.levantarProperties();
+
+    }
+
+    public String LeerProperties(String caso) {
         String URL = "";
-        Properties prop = new Properties();
 
-        InputStream archivo = null;
-
-        try { //C:\\Users\\Martin\\Documents\\PA\\Tarea 1\\culturarte
-            archivo = new FileInputStream(System.getProperty("user.dir") + "\\config\\config.properties");
-            prop.load(archivo);
-
-        } catch (IOException e) {
-            JOptionPane.showMessageDialog(null, e.getMessage());
-        }
         //      http://     127.0.0.1               :      8280                     /servicio        Login
-        URL = "http://" + prop.getProperty("Ip") + ":" + prop.getProperty("Porth") + "/servicio" + prop.getProperty(caso);
+        URL = "http://" + this.prop.getProperty("Ip") + ":" + this.prop.getProperty("Porth") + "/servicio" + this.prop.getProperty(caso);
         return URL;
     }
-      
-    
-//       
 
+//       
     private void PublicarServicios() {
-        
+
         String URL;
         URL = this.LeerProperties("ConsultaUsuario");
         WSContCliente WSCC = new WSContCliente(URL);
@@ -463,7 +461,11 @@ public class Principal extends javax.swing.JFrame {
         URL = this.LeerProperties("Ventas");
         WSContVentas WSCV = new WSContVentas(URL);
         WSCV.publicar();
-       
+        
+        URL = this.LeerProperties("Reserva");
+        WSContReserva WSCR = new WSContReserva(URL);
+        WSCR.publicar();
+
 //        URL = this.LeerProperties("ConsultaUsuario");
 //        WSContVentas WSCV = new WSContVentas(URL);
 //        WSCV.publicar();
@@ -473,10 +475,8 @@ public class Principal extends javax.swing.JFrame {
 //        WSCV.publicar();
     }
 
-    
-
     private void cargarInicio() {
-        
+
         ICV.cargarproductos();
         ICS.cargarTiposServicios();//carga los tipos de servicios
         // cargarReservas();
@@ -494,11 +494,11 @@ public class Principal extends javax.swing.JFrame {
         // m.pararHilo("h1");
 
     }
-    
+
     public void cargarModelo(DefaultTableModel model) {
         jTableReservas.setModel(model);
     }
-    
+
     private void cargarReservas() {
         try {
             List<reserva> reservasDelDia = (List<reserva>) ICR.getReservasDelDia();

@@ -5,12 +5,18 @@
  */
 package Servicios;
 
+import ListServicios.ListMascotaWS;
+import ListServicios.ListTipoBanio;
+import ListServicios.ListTipoEsquila;
 import ListServicios.ListTurnos;
+import ListServicios.contieneArray;
 import Logica.ControladorReservas;
 import Logica.controladorServicios;
 import Logica.fabricaElGuardian;
 import Logica.utilidades;
+import ObjetosParaWeb.mascotaWS;
 import ObjetosParaWeb.reservaWS;
+import java.util.ArrayList;
 import java.util.List;
 import javax.annotation.Resource;
 import javax.jws.WebMethod;
@@ -54,6 +60,8 @@ public class WSContReserva {
     public void publicar() {
         try {
             endpoint = Endpoint.publish(direccion, this);
+
+            System.out.println("Publique servicio: WSContReserva: " + direccion);
         } catch (Exception e) {
             System.err.println(e.getMessage());
         }
@@ -79,13 +87,13 @@ public class WSContReserva {
 
     /////////////////////////////gestion turnos/////////////////////////////////////////
     @WebMethod
-    @WebResult(name = "listaTurnos")
+
     public ListTurnos getTurnosDisponibles(@WebParam(name = "fecha") String fecha) {
 
-     //   conArr.setLista(contRes.cargarTurnosDisponiblesList(utilidades.fechaDate(fecha, null)));
-        ListTurnos lt= new ListTurnos();
+        //   conArr.setLista(contRes.cargarTurnosDisponiblesList(utilidades.fechaDate(fecha, null)));
+        ListTurnos lt = new ListTurnos();
         lt.setListTurnosWS(contRes.cargarTurnosDisponiblesList(utilidades.fechaDate(fecha, null)));
-        
+
         return lt;
 
     }
@@ -93,15 +101,21 @@ public class WSContReserva {
     ////++++++//////////////+++++++++++++////////////+++++++++++///////////+++++/
     ///////////////////////////////Tipo de Servicio////////////////////////////////////
     @WebMethod
-    @WebResult(name = "listaEsquila")
-    public List<String> getTipoEsquilas() {
+    //  @WebResult(name = "nuevoContiene")
+    public ListTipoEsquila getTipoEsquilas() {
+        System.err.println("tipoEsquilas");
+
         return contSrv.getListaTipoEsquilaWS();
+
     }
 
     @WebMethod
-    @WebResult(name = "listaBanio")
-    public List<String> getTipoBanio() {
+    //  @WebResult(name="nuevoContiene")
+    public ListTipoBanio getTipoBanio() {
+        System.err.println("tipobanio");
+
         return contSrv.getListaTipoBanioWS();
+
     }
 
     @WebMethod
@@ -109,7 +123,16 @@ public class WSContReserva {
     public float getPrecioPaseo() {
         return contSrv.getPrecioPaseo();
     }
-
     ////++++++//////////////+++++++++++++////////////+++++++++++///////////+++++/
+
+    @WebMethod
+    public ListMascotaWS getMascotasCliente(@WebParam(name = "clienteCorreo") String clienteCorreo) {
+        System.out.println(clienteCorreo);
+        ListMascotaWS nuevaLista = new ListMascotaWS();
+        List<mascotaWS> mascotasCliente = contRes.getMascotasCliente(clienteCorreo);
+        nuevaLista.setMascotas(mascotasCliente);
+        return nuevaLista;
+    }
+
     ////++++++//////////////+++++++++++++////////////+++++++++++///////////+++++/
 }

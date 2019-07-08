@@ -114,7 +114,7 @@ public class tipoBanio implements Serializable {
 
     @Override
     public String toString() {
-        return "/Id/" + id + "/Tipo de Baño/" + tipoBanio + "/Descripcion/" + descripcion + "/Precio/" + precio;
+        return "/Tipo de Baño/" + tipoBanio + "/Descripcion/" + descripcion + "/Precio/" + precio;
     }
 
 }

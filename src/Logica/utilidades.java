@@ -15,6 +15,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.security.SecureRandom;
 import java.text.Format;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -147,7 +148,7 @@ public class utilidades {
      * @throws javax.mail.internet.AddressException
      *
      */
-    public static boolean enviarConGMail(String destinatario, String asunto, String cuerpo, String user, String pass) throws AddressException {
+    public static boolean enviarConGMail2(String destinatario, String asunto, String cuerpo, String user, String pass) throws AddressException {
         Properties props = new Properties();
         final String username = "elGuardianEsteticaCanina@gmail.com";
         final String password = "elguardian12345";
@@ -181,6 +182,56 @@ public class utilidades {
             return false;
         }
 
+    }
+
+    public static boolean enviarConGMail(String destinatario, String asunto, String cuerpo, String user, String pass, String token) throws AddressException {
+        Properties props = new Properties();
+        utilidades u = new utilidades();
+        final String username = "elGuardianEsteticaCanina@gmail.com";
+        final String password = "elguardian12345";
+        props.setProperty("mail.smtp.host", "smtp.gmail.com");
+        props.setProperty("mail.smtp.auth", "true");
+        props.setProperty("mail.smtp.starttls.enable", "true");
+        props.setProperty("mail.smtp.port", "587");
+        props.setProperty("mail.smtp.user", username);
+
+        Session session = Session.getInstance(props, new javax.mail.Authenticator() {
+            @Override
+            protected PasswordAuthentication getPasswordAuthentication() {
+                return new PasswordAuthentication(username, password);
+            }
+        });
+        MimeMessage message = new MimeMessage(session);
+        try {
+            message.setFrom(new InternetAddress(username));
+            message.addRecipient(javax.mail.Message.RecipientType.TO, new InternetAddress(destinatario));
+            message.setSubject(asunto);
+            if (token != null) {
+                message.setText("Usted se ha registrado con exito en El Guardian Estetica Canina.\nPorfavor ingrese al siguiente link \nhttp://localhost:8080/GuardianWeb/ServletValidarCuenta"
+                        + " " + "\n y valide su cuenta con el siguiente cÃ³digo: " + token);
+            } else {
+                message.setText(cuerpo);
+            }
+            javax.mail.Transport t = session.getTransport("smtp");
+            t.connect(username, password);
+            t.sendMessage(message, message.getAllRecipients());
+            // javax.mail.Transport.send(message, message.getAllRecipients());
+            t.close();
+            return true;
+
+        } catch (javax.mail.MessagingException e) {
+            System.err.println(e.getMessage());
+            return false;
+        }
+
+    }
+
+    public static String GenerarToken() {
+        SecureRandom random = new SecureRandom();
+        byte bytes[] = new byte[20];
+        random.nextBytes(bytes);
+        String token = bytes.toString();
+        return token;
     }
 
     /**
@@ -558,7 +609,7 @@ public class utilidades {
         }
         return fec;
     }
-    
+
     /**
      * Funcion que retorna un objeto date (dd/MM/yyyy HH:mm) y recibe como
      * parametros dos String
@@ -569,7 +620,7 @@ public class utilidades {
      *
      * @param f
      * @param h
-     * @return 
+     * @return
      * @return:
      * @null si f == null y h == null
      *
@@ -602,7 +653,7 @@ public class utilidades {
         return fecha;
 
     }
-    
+
     public String autoEncriptarPasswdSHAI1(String pass) {
         try {
 

@@ -6,6 +6,7 @@
 package Logica;
 
 import ObjetosParaWeb.clienteWS;
+import ObjetosParaWeb.mascotaWS;
 import ObjetosParaWeb.reservaWS;
 import ObjetosParaWeb.turnoWS;
 import Persistencia.*;
@@ -393,12 +394,13 @@ public class ControladorReservas implements iControladorReservas {
                 nuevoServicio = new paseo();
                 nuevoServicio.setPrecio(contSrv.getPrecioPaseo());
 
-            } else {
+            }
+            if (tipoServicio.equals("BANIO")) {
                 List serviciosXtipobanio = contSrv.getServiciosXtipo("BANIO");
                 for (Object sxt : serviciosXtipobanio) {
                     String tipo = ((tipoBanio) sxt).getTipo();
                     Long id = ((tipoBanio) sxt).getId();
-                    if (tipo.equals(tipoServicio) && id == idTipoServicio) {
+                    if (id == idTipoServicio) {
                         banio nuevoServicioBanio = new banio();
                         nuevoServicioBanio.setDescripcion(this.getTipoBanio(id).getDescripcion());
                         nuevoServicioBanio.setTipoDeBanio(this.getTipoBanio(id));
@@ -406,6 +408,8 @@ public class ControladorReservas implements iControladorReservas {
                         nuevoServicio = nuevoServicioBanio;
                     }
                 }
+            }
+            if (tipoServicio.equals("ESQUILA")) {
                 List serviciosXtipoesquila = contSrv.getServiciosXtipo("ESQUILA");
 
                 for (Object sxt2 : serviciosXtipoesquila) {
@@ -527,6 +531,20 @@ public class ControladorReservas implements iControladorReservas {
         }
 
         return nuevaReservaWS;
+    }
+
+    @Override
+    public List<mascotaWS> getMascotasCliente(String idCliente) {
+        List<mascota> mascotasCliente = contCli.getMascotasCliente(idCliente);
+        List<mascotaWS> mascotasReturn = new ArrayList<>();
+        for (mascota m : mascotasCliente) {
+            mascotaWS nuevaMascotaWS = new mascotaWS();
+            nuevaMascotaWS.setId(m.getId());
+            nuevaMascotaWS.setNombre(m.getNombre());
+            mascotasReturn.add(nuevaMascotaWS);
+
+        }
+        return mascotasReturn;
     }
 
 }

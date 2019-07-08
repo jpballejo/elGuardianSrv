@@ -12,6 +12,7 @@ import javax.annotation.Resource;
 import javax.annotation.Resources;
 import javax.jws.WebMethod;
 import javax.jws.WebParam;
+import javax.jws.WebResult;
 import javax.jws.WebService;
 import javax.jws.soap.SOAPBinding;
 import javax.xml.ws.Endpoint;
@@ -29,8 +30,7 @@ public class WSContCliente {
     private WebServiceContext context;
     private Endpoint endpoint = null;
     private String direccion;
-    
-    
+
     public WSContCliente(String direccionV) {
         this.direccion = direccionV;
     }
@@ -49,18 +49,20 @@ public class WSContCliente {
     public void publicar() {
         try {
             endpoint = Endpoint.publish(direccion, this);
+            System.out.println("Publique servicio: WSContCliente: " + direccion);
         } catch (Exception e) {
             System.err.println(e.getMessage());
         }
     }
 
 ////////////////////////////////////WEBMETHOD's/////////////////////////////
-    
-    
 ///////////////////////////////CLIENTE//////////////////////////////////////    
     @WebMethod
     public cliente obtenerCliente(@WebParam(name = "email") String email) {
-        return fabricaElGuardian.getInstance().getInstanceIControladorCliente().getCliente(email);
+        System.out.println(email);
+        cliente cli= fabricaElGuardian.getInstance().getInstanceIControladorCliente().getCliente(email);
+        System.out.println(cli);
+        return cli;
     }
 
     @WebMethod
@@ -74,7 +76,7 @@ public class WSContCliente {
         clie.setTel_cel(telefono);
         clie.setDireccion(direccion);
         clie.setPassword(hash);
-
+        System.out.println(clie);
         fabricaElGuardian.getInstance().getInstanceIControladorCliente().altaClienteWeb(clie);
     }
 
@@ -86,13 +88,12 @@ public class WSContCliente {
 
     ///////////////////////////////ANIMAL////////////////////////////////////// 
     @WebMethod
-    public ListMascota getMascotas(){
-    
+    public ListMascota getMascotas() {
+
         return null;
     }
-    
+
     ////++++++//////////////+++++++++++++////////////+++++++++++///////////+++++/
-    
     ///////////////////////////////****////////////////////////////////////// 
     ////++++++//////////////+++++++++++++////////////+++++++++++///////////+++++/
     ///////////////////////////////****////////////////////////////////////// 

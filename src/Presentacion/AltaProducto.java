@@ -20,7 +20,7 @@ import javax.swing.ImageIcon;
 import javax.swing.JOptionPane;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
-import org.apache.commons.io.FilenameUtils;
+
 
 /**
  *
@@ -41,17 +41,7 @@ public class AltaProducto extends javax.swing.JInternalFrame {
         
         initComponents();
 
-         try {
-        UIManager.setLookAndFeel("com.sun.java.swing.plaf.nimbus.NimbusLookAndFeel");
-    } catch (ClassNotFoundException ex) {
-        Logger.getLogger(ModificarProducto.class.getName()).log(Level.SEVERE, null, ex);
-    } catch (InstantiationException ex) {
-        Logger.getLogger(ModificarProducto.class.getName()).log(Level.SEVERE, null, ex);
-    } catch (IllegalAccessException ex) {
-        Logger.getLogger(ModificarProducto.class.getName()).log(Level.SEVERE, null, ex);
-    } catch (UnsupportedLookAndFeelException ex) {
-        Logger.getLogger(ModificarProducto.class.getName()).log(Level.SEVERE, null, ex);
-    }
+     
     }
 
    

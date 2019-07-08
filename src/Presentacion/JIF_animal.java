@@ -268,7 +268,7 @@ public class JIF_animal extends javax.swing.JInternalFrame {
             String[] cabeceras = (String[]) util.cabeceras((mascota) mascotasSis.get(0));
             DefaultTableModel dtm = new DefaultTableModel(cabeceras, 0);
             for (mascota m : mascotasSis) {
-                Object[] objdata = {m.getId(), m.getNombre(), m.getRaza().getRaza(), m.getCliente().getCedula() + " " + m.getCliente().getNombre() + " " + m.getCliente().getApellido(), m.getDescripcion(),};
+                Object[] objdata = {m.getId(), m.getNombre(), m.getRaza().getRaza(), m.getCliente().getCorreo(), m.getDescripcion(),};
                 dtm.addRow(objdata);
             }
             //jTab_Animal.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);

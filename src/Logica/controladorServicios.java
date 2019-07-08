@@ -5,6 +5,10 @@
  */
 package Logica;
 
+import ListServicios.ListTipoBanio;
+import ListServicios.ListTipoEsquila;
+import ObjetosParaWeb.tipoBanioWS;
+import ObjetosParaWeb.tipoEsquilaWS;
 import Persistencia.persistencia;
 import java.util.ArrayList;
 import java.util.List;
@@ -35,9 +39,8 @@ public class controladorServicios implements iControladorServicios {
     public List getServiciosXtipo(String srv) {
         ArrayList listaSRV = new ArrayList();// inicializar siempre si no no tiene una lista para cargar
         try {
-            if (listaSRV != null) {
-                listaSRV.clear();
-            }
+            cargarTiposServicios();
+           
             if (srv.equals("BANIO")) {
                 if (!tipoBanios.isEmpty()) {
                     listaSRV.addAll(this.tipoBanios);
@@ -127,22 +130,28 @@ public class controladorServicios implements iControladorServicios {
 
     }
 
-    public List<String> getListaTipoBanioWS() {
-        List<String> tipos = new ArrayList<>();
+    public ListTipoBanio getListaTipoBanioWS() {
+        ListTipoBanio nuevaLista = new ListTipoBanio();
         List serviciosXtipo = this.getServiciosXtipo("BANIO");
         for (Object SXT : serviciosXtipo) {
-            tipos.add(((tipoBanio) SXT).getTipo());
+            tipoBanioWS nuevoTipo = new tipoBanioWS();
+            nuevoTipo.setId(((tipoBanio) SXT).getId());
+            nuevoTipo.setTipobanio(((tipoBanio) SXT).getTipoBanio());
+            nuevaLista.addItem(nuevoTipo);
         }
-        return tipos;
+        return nuevaLista;
     }
 
-    public List<String> getListaTipoEsquilaWS() {
-        List<String> tipos = new ArrayList<>();
-        List serviciosXtipo = this.getServiciosXtipo("BANIO");
+    public ListTipoEsquila getListaTipoEsquilaWS() {
+        ListTipoEsquila nuevaLista = new ListTipoEsquila();
+        List serviciosXtipo = this.getServiciosXtipo("ESQUILA");
         for (Object SXT : serviciosXtipo) {
-            tipos.add(((tipoEsquila) SXT).getTipo());
+            tipoEsquilaWS nuevobanio = new tipoEsquilaWS();
+            nuevobanio.setId(((tipoEsquila) SXT).getId());
+            nuevobanio.setTipoEsquila(((tipoEsquila) SXT).getTipoEsquila());
+            nuevaLista.addItem(nuevobanio);
         }
-        return tipos;
+        return nuevaLista;
     }
 
 }

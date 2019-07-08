@@ -108,7 +108,7 @@ public class tipoEsquila implements Serializable {
 
     @Override
     public String toString() {
-        return "/Id/" + id + "/TIpo Esquila/" + tipoEsquila + "/Descripcion/" + descripcion + "/Precio/" + precio;
+        return "/TIpo Esquila/" + tipoEsquila + "/Descripcion/" + descripcion + "/Precio/" + precio;
     }
 
     

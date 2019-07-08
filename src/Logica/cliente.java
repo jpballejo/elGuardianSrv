@@ -48,11 +48,11 @@ public class cliente implements Serializable {
     private String password;
     
     public cliente() {
-    }
-    @OneToMany(mappedBy = "cliente",cascade = CascadeType.ALL)
+    }//mappedBy = "cliente",
+    @OneToMany(cascade = CascadeType.ALL)
     private List<reserva> reservasCliente;
     
-    @OneToMany(mappedBy = "cliente", cascade = CascadeType.ALL)
+    @OneToMany(cascade = CascadeType.ALL)
     private List<mascota> mascotasCliente;
     
     public String getCorreo() {
@@ -254,5 +254,22 @@ public class cliente implements Serializable {
         }
         //revisar comparacion de arreglos cosas
     }
-    
+    private boolean estado;
+    private String token;
+
+    public String getToken() {
+        return token;
+    }
+
+    public void setToken(String token) {
+        this.token = token;
+    }
+
+    public boolean isEstado() {
+        return estado;
+    }
+
+    public void setEstado(boolean estado) {
+        this.estado = estado;
+    }
 }

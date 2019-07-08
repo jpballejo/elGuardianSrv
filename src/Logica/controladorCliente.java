@@ -147,17 +147,17 @@ public class controladorCliente implements iControladorCliente {
      */
     @Override
     public boolean resetearPassword(String email) {
-     try {
+        try {
             cliente cliPassCambio = this.getCliente(email);
             codificador a = new codificador();
             String pass = this.generarPassword();
             String hash = a.sha1(pass);
             cliPassCambio.setPassword(hash);
-            if (persistencia.getInstance().modificar((Object)cliPassCambio)) {
-                utilidades.enviarConGMail(cliPassCambio.getCorreo(), 
+            if (persistencia.getInstance().modificar((Object) cliPassCambio)) {
+                utilidades.enviarConGMail(cliPassCambio.getCorreo(),
                         "Reseteo de contraseña", "Su contraseña a sido reseteada con exito, "
-                                + "puede ingresar al sitio con la siguiente contraseña: " + 
-                                pass, null, null);
+                        + "puede ingresar al sitio con la siguiente contraseña: "
+                        + pass, null, null, null);
 
                 return true;
             }
@@ -176,15 +176,18 @@ public class controladorCliente implements iControladorCliente {
      * @return
      */
     @Override
+
     public boolean altaCliente(cliente clienteNuevo) {
         try {
-            clienteNuevo.setPassword(this.generarPassword());
+            // clienteNuevo.setPassword(this.generarPassword());
             letraMayuscula(clienteNuevo);
-            String contra = clienteNuevo.getPassword();
             if (!persistencia.existe(clienteNuevo)) {
+
+                String token = utilidades.GenerarToken();
+                clienteNuevo.setToken(token);
                 if (persistencia.persis((Object) clienteNuevo)) {
 
-                    utilidades.enviarConGMail(clienteNuevo.getCorreo(), "Usuario Nuevo", "EL usuario a sido registrado con exito! Puede logearse con la siguiente contraseña: " + contra, null, null);
+                    utilidades.enviarConGMail(clienteNuevo.getCorreo(), "Usuario Nuevo", "EL usuario a sido registrado con exito!", null, null, token);
 
                     return true;
 
@@ -452,17 +455,17 @@ public class controladorCliente implements iControladorCliente {
         }
         return mascotasSistema;
     }
-    
+
     @Override
     public boolean altaClienteWeb(cliente clienteNuevo) {
-       
-            if (!persistencia.existe(clienteNuevo)) {
-                if (persistencia.persis((Object) clienteNuevo)) {
 
-                    return true;
+        if (!persistencia.existe(clienteNuevo)) {
+            if (persistencia.persis((Object) clienteNuevo)) {
 
-                }
+                return true;
+
             }
+        }
 
         return false;
     }
@@ -523,4 +526,34 @@ public class controladorCliente implements iControladorCliente {
         }
     }
 
+    public List<mascota> obtenerMascotasCliente(cliente c) {
+
+        List<mascota> todas = aPer.getMascotas();
+        List<mascota> mascotascliente = new ArrayList<>();
+        Iterator it = todas.iterator();
+        while (it.hasNext()) {
+            mascota m = (mascota) it.next();
+            if (m.getCliente().getCorreo().equals(c.getCorreo())) {
+                mascotascliente.add(m);
+            }
+        }
+        return mascotascliente;
+    }
+
+    @Override
+    public List<mascota> getMascotasCliente(String idCliente) {
+        List<mascota> misMascotas = new ArrayList<>();
+
+        try {
+            List listaObjetos = persistencia.getListaObjetos("select * from mascota where cliente_correo= '" + idCliente + "'", mascota.class);
+
+            for (Object obj : listaObjetos) {
+                mascota m = (mascota) obj;
+                misMascotas.add(m);
+            }
+        } catch (Exception e) {
+            System.out.println("Error: " + e.getMessage() + " Causa: " + e.getCause());
+        }
+        return misMascotas;
+    }
 }

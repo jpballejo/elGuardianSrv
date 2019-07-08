@@ -78,7 +78,7 @@ public interface iControladorCliente {
     
     public abstract boolean altaClienteWeb(cliente clienteNuevo);
     
-    
+    public abstract List<mascota> getMascotasCliente(String idCliente);
     
     
 }

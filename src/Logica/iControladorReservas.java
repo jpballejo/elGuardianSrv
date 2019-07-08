@@ -58,7 +58,6 @@ public interface iControladorReservas {
     public abstract List<turno> getTurnos(String fecha);
 
     //////////////////////////////////////////PARA WEBSERVICE
-    
     public abstract boolean altaReservaWS(reservaWS r);
 
     public abstract boolean modificarReservaWS(reservaWS r);
@@ -66,14 +65,15 @@ public interface iControladorReservas {
     public abstract boolean eliminarReservaWS(long idReserva);
 
     public abstract Object[] cargarTurnosDisponibles(Date fecha);
-    
+
     public abstract List cargarTurnosDisponiblesList(Date fecha);
-         
+
     public abstract reservaWS getReservaWS(long id);
-    
+
     public abstract List<clienteWS> getClientesWS();
-    
+
     public abstract List<reservaWS> getReservasWS();
-    
-    
-    }
+
+    public abstract List<mascotaWS>  getMascotasCliente(String idCliente);
+
+}

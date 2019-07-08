@@ -47,6 +47,8 @@ public class WSContVentas {
     public void publicar() {
         try {
             endpoint = Endpoint.publish(direccion, this);
+            
+            System.out.println("Publique servicio: WSContVentas: "+direccion);
         } catch (Exception e) {
             System.err.println(e.getMessage());
         }

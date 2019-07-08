@@ -22,6 +22,14 @@ import java.util.Properties;
  */
 public class ControladorProperties implements IControlerProperties {
 
+    private static ControladorProperties instance = null;
+
+    public static ControladorProperties getInstance() {
+        if (instance == null) {
+            instance = new ControladorProperties();
+        }
+        return instance;
+    }
     ///Variables properties///
     private static Properties propiedades = null;
     ArrayList<String> clavesPropiedades = new ArrayList<>();
@@ -238,13 +246,13 @@ public class ControladorProperties implements IControlerProperties {
 
             if (propertiesValido(prop)) {
                 propiedades = prop;
-                setearPropiesdades();
+                //  setearPropiesdades();
                 Iterator it = prop.keySet().iterator();
                 System.out.println("Properties claves cargadas: ");
                 while (it.hasNext()) {
                     String key = (String) it.next();
-                    clavesPropiedades.add(key);
-                    addDiccionarioProp(key, prop.getProperty(key));
+                    // clavesPropiedades.add(key);
+                    //  addDiccionarioProp(key, prop.getProperty(key));
                     System.out.println(key);
 
                 }
@@ -450,7 +458,7 @@ public class ControladorProperties implements IControlerProperties {
         try {
             String[] subCadena = cadena.split("/");
             int largo = subCadena.length;
-            for (int i = 1; i < subCadena.length - 2; i++) {
+            for (int i = 1; i < subCadena.length - 3; i++) {
                 path += subCadena[i] + "/";
                 System.out.println(subCadena[i]);
 
@@ -477,7 +485,7 @@ public class ControladorProperties implements IControlerProperties {
         if (listFile != null && listFile.length > 0) {
             for (int i = 0; i < listFile.length; i++) {
                 if (listFile[i].isFile()) {
-                    if (listFile[i].getName().equals(".properties")) {
+                    if (listFile[i].getName().equals("config.properties")) {
                         return (File) listFile[i];
                     }
                 }
@@ -497,7 +505,7 @@ public class ControladorProperties implements IControlerProperties {
         if (listFile != null && listFile.length > 0) {
             for (int i = 0; i < listFile.length; i++) {
                 if (listFile[i].isFile()) {
-                    if (listFile[i].getName().equals(".properties")) {
+                    if (listFile[i].getName().equals("config.properties")) {
                         return (File) listFile[i];
                     }
                 }
